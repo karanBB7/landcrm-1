@@ -1,0 +1,379 @@
+
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="stylesheet" href="css/leaflet.css">
+    <link rel="stylesheet" href="css/qgis2web.css">
+    <link rel="stylesheet" href="css/fontawesome-all.min.css">
+    <style>
+        body {
+            padding: 5%;
+        }
+
+        #map {
+            width: 100%;
+            height: 96vh;
+        }
+
+    </style>
+    <title></title>
+</head>
+
+<body>
+    
+    
+    
+    <div id="map">
+    </div>
+    <script src="js/qgis2web_expressions.js"></script>
+    <script src="js/leaflet.js"></script>
+    <script src="js/leaflet.rotatedMarker.js"></script>
+    <script src="js/leaflet.pattern.js"></script>
+    <script src="js/leaflet-hash.js"></script>
+    <script src="js/Autolinker.min.js"></script>
+    <script src="js/rbush.min.js"></script>
+    <script src="js/labelgun.min.js"></script>
+    <script src="js/labels.js"></script>
+    <script src="data/base_1.js"></script>
+    <script src="data/outline_2.js"></script>
+    <script src="data/blocks_3.js"></script>
+    <script>
+        
+
+//
+//        var apiResponse = {
+//            "statuscode": 1,
+//            "data": [
+//                {
+//                    "dagName": "132",
+//                    "status": "AgreeMent"
+//                },
+//                {
+//                    "dagName": "138",
+//                    "status": "Registery"
+//                },
+//                {
+//                    "dagName": "191",
+//                    "status": "AgreeMent"
+//                },
+//                {
+//                    "dagName": "298",
+//                    "status": "Registery"
+//                },
+//                {
+//                    "dagName": "244",
+//                    "status": "open"
+//                }
+//            ],
+//            "statusMessage": "Successfully Fetched Data"
+//        };
+//
+//        apiResponse.data.forEach(function(item) {
+//            var dagName = item.dagName;
+//            var status = item.status;
+//
+//            var feature = json_blocks_3.features.find(function(feature) {
+//                return feature.properties.dagName === dagName;
+//            });
+//
+//            if (feature) {
+//                feature.properties.status = status;
+//            }
+//        });
+//
+//        console.log(json_blocks_3);
+        
+        
+                
+        async function fetchAPI() {
+  try {
+    const response = await fetch("http://3.109.59.38/landcrm/modules/Mobile/v1/GetPlotDetailsOfproject");
+    const apiResponse = await response.json();
+
+    console.log("API Response:", apiResponse);
+
+        apiResponse.data.forEach(function(item) {
+            var dagName = item.dagName;
+            var status = item.status;
+
+            var feature = json_blocks_3.features.find(function(feature) {
+                return feature.properties.dagName === dagName;
+            });
+
+            if (feature) {
+                feature.properties.status = status;
+            }
+        });   
+      
+      console.log("after",json_blocks_3);
+
+  } catch (error) {
+    console.error("Error fetching API data:", error);
+  }
+}
+fetchAPI();
+
+
+        
+        var map = L.map('map', {
+            zoomControl: true,
+            maxZoom: 28,
+            minZoom: 1
+        }).fitBounds([
+            [21.83158149174668, 79.62041372611934],
+            [23.998627442666596, 84.959700610993]
+        ]);
+        var hash = new L.Hash(map);
+//        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');     
+        
+        map.attributionControl.setPrefix();
+        var autolinker = new Autolinker({
+            truncate: {
+                length: 30,
+                location: 'smart'
+            }
+        });
+        var bounds_group = new L.featureGroup([]);
+
+        function setBounds() {}
+        map.createPane('pane_OSMStandard_0');
+        map.getPane('pane_OSMStandard_0').style.zIndex = 400;
+        var layer_OSMStandard_0 = L.tileLayer('http://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            pane: 'pane_OSMStandard_0',
+            opacity: 1.0,
+//            attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors, CC-BY-SA</a>',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_OSMStandard_0;
+        map.addLayer(layer_OSMStandard_0);
+
+        function pop_base_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['id'] !== null ? autolinker.link(feature.properties['id'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['status'] !== null ? autolinker.link(feature.properties['status'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {
+                maxHeight: 400
+            });
+        }
+
+        function style_base_1_0() {
+            return {
+                pane: 'pane_base_1',
+                opacity: 1,
+                color: 'rgba(38,89,128,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(24,184,53,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_base_1');
+        map.getPane('pane_base_1').style.zIndex = 401;
+        map.getPane('pane_base_1').style['mix-blend-mode'] = 'normal';
+        var layer_base_1 = new L.geoJson(json_base_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_base_1',
+            layerName: 'layer_base_1',
+            pane: 'pane_base_1',
+            onEachFeature: pop_base_1,
+            style: style_base_1_0,
+        });
+        bounds_group.addLayer(layer_base_1);
+        map.addLayer(layer_base_1);
+
+        function pop_outline_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['id'] !== null ? autolinker.link(feature.properties['id'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['lines'] !== null ? autolinker.link(feature.properties['lines'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {
+                maxHeight: 400
+            });
+        }
+
+        function style_outline_2_0() {
+            return {
+                pane: 'pane_outline_2',
+                opacity: 1,
+                color: 'rgba(7,28,17,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 3.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_outline_2');
+        map.getPane('pane_outline_2').style.zIndex = 402;
+        map.getPane('pane_outline_2').style['mix-blend-mode'] = 'normal';
+        var layer_outline_2 = new L.geoJson(json_outline_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_outline_2',
+            layerName: 'layer_outline_2',
+            pane: 'pane_outline_2',
+            onEachFeature: pop_outline_2,
+            style: style_outline_2_0,
+        });
+        bounds_group.addLayer(layer_outline_2);
+        map.addLayer(layer_outline_2);
+
+        function pop_blocks_3(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2"> Id: ' + (feature.properties['id'] !== null ? autolinker.link(feature.properties['id'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"> dag name: ' + (feature.properties['dagName'] !== null ? autolinker.link(feature.properties['dagName'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"> Number: ' + (feature.properties['number'] !== null ? autolinker.link(feature.properties['number'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"> Status: ' + (feature.properties['status'] !== null ? autolinker.link(feature.properties['status'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {
+                maxHeight: 400
+            });
+        }
+
+
+
+
+
+
+        map.createPane('pane_blocks_3');
+        map.getPane('pane_blocks_3').style.zIndex = 403;
+        map.getPane('pane_blocks_3').style['mix-blend-mode'] = 'normal';
+        var layer_blocks_3 = new L.geoJson(json_blocks_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_blocks_3',
+            layerName: 'layer_blocks_3',
+            pane: 'pane_blocks_3',
+            onEachFeature: pop_blocks_3,
+            style: style_blocks_3_0,
+        });
+        bounds_group.addLayer(layer_blocks_3);
+        map.addLayer(layer_blocks_3);
+        setBounds();
+        var i = 0;
+        layer_base_1.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['status'] !== null ? String('<div style="color: #000000; font-size: 10pt; font-family: \'Open Sans\', sans-serif;">' + layer.feature.properties['status']) + '</div>' : ''), {
+                permanent: true,
+                offset: [-0, -16],
+                className: 'css_base_1'
+            });
+            labels.push(layer);
+            totalMarkers += 1;
+            layer.added = true;
+            addLabel(layer, i);
+            i++;
+        });
+        var i = 0;
+        layer_blocks_3.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['dagName'] !== null ? String('<div style="color: #000000; font-size: 9pt; font-family: \'Open Sans\', sans-serif;">' + layer.feature.properties['dagName']) + '</div>' : ''), {
+                permanent: true,
+                offset: [-0, -16],
+                className: 'css_blocks_3'
+            });
+            labels.push(layer);
+            totalMarkers += 1;
+            layer.added = true;
+            addLabel(layer, i);
+            i++;
+        });
+        resetLabels([layer_base_1, layer_blocks_3]);
+        map.on("zoomend", function() {
+            resetLabels([layer_base_1, layer_blocks_3]);
+        });
+        map.on("layeradd", function() {
+            resetLabels([layer_base_1, layer_blocks_3]);
+        });
+        map.on("layerremove", function() {
+            resetLabels([layer_base_1, layer_blocks_3]);
+        });
+        
+        
+        
+function style_blocks_3_0(feature) {
+    var status = feature.properties.status;
+    var color = '';
+
+    if (status === 'open') {
+        color = 'rgba(255, 255, 0, 1.0)'; 
+    } else if (status === 'close') {
+        color = 'rgba(255, 0, 0, 1.0)'; 
+    }else if (status === 'AgreeMent') {
+        color = 'rgba(47, 242, 12 , 1.0)'; 
+    }else if (status === 'Registery') {
+        color = 'rgba(0, 77, 255 , 1.0)'; 
+    }
+
+    return {
+        pane: 'pane_blocks_3',
+        color: 'rgba(35, 35, 35, 1.0)',
+        dashArray: '5',
+        lineCap: 'butt',
+        lineJoin: 'miter',
+        weight: 1.0,
+        fill: true,
+        fillOpacity: 1,
+        fillColor: color,
+        interactive: true,
+    };
+}
+   
+        
+        
+
+//var features = json_blocks_3.features;
+//for (var i = 0; i < features.length; i++) {
+//    var feature = features[i];
+//    var style = style_blocks_3_0(feature);
+//    console.log('Feature ' + i + ':', style.fillColor);
+//}
+
+
+    </script>
+    
+
+    
+    
+</body>
+
+</html>
